@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plataforma de Precios Agrícolas – Visualización y análisis para productores de Cota</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #fce4ec);
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #00695c;
+    }
+    .chart-container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .info-box {
+      width: 90%;
+      max-width: 1000px;
+      margin: 30px auto;
+      border-left: 6px solid;
+      border-radius: 8px;
+      padding: 15px 20px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .estandarizacion { border-color: #ff9800; background: #fff3e0; }
+    .descripcion { border-color: #4caf50; background: #e8f5e9; }
+  </style>
+</head>
+<body>
+  <h1>Visualización de Precios Agrícolas - Municipio de Cota (2022)</h1>
+
+  <!-- 🔧 Problema de estandarización -->
+  <div class="info-box estandarizacion">
+    <h3>🔍 Problema de estandarización</h3>
+    <p>
+      Actualmente, uno de los principales obstáculos para interpretar y comparar precios agrícolas es la falta de un sistema claro y estandarizado para registrar las unidades y presentaciones de los productos. Esto genera confusión y dificulta una lectura precisa de los valores de mercado. Una herramienta que facilite la visualización y comparación de precios podría contribuir a evidenciar estos contrastes y promover la adopción de formatos comunes entre productores, comercializadores e instituciones.
+    </p>
+  </div>
+
+  <!-- 📈 Gráfica Espinaca -->
+  <div class="chart-container">
+    <canvas id="graficoEspinaca"></canvas>
+  </div>
+
+  <!-- 📉 Gráfica Cilantro -->
+  <div class="chart-container">
+    <canvas id="graficoCilantro"></canvas>
+  </div>
+
+  <!-- 🤖 Acerca de la propuesta y proyecciones -->
+  <div class="info-box descripcion">
+    <h3>📊 Acerca de la propuesta y posibles proyecciones</h3>
+    <p>
+      Una forma de mitigar la inestabilidad económica que enfrentan los pequeños productores en el municipio de Cota podría ser la creación de una herramienta digital que permita visualizar precios agrícolas históricos y actuales. Esta propuesta facilitaría el acceso libre a información clave para el sector, fomentando decisiones más informadas.
+    </p>
+    <p>
+      Además, una funcionalidad futura que podría explorarse es el uso de modelos de inteligencia artificial para generar proyecciones de precios con base en datos históricos. Esto ayudaría a anticipar tendencias de mercado y a fortalecer la planeación de la producción y la comercialización de los productos agrícolas locales.
+    </p>
+  </div>
+
+  <!-- JS -->
+  <script>
+    fetch('/api/precios')
+    .then(res => res.json())
+    .then(data => {
+      // ESPINACA
+      const espinaca = data['ESPINACA'];
+      const ctxEsp = document.getElementById('graficoEspinaca').getContext('2d');
+      new Chart(ctxEsp, {
+        type: 'line',
+        data: {
+          labels: espinaca.semanas,
+          datasets: [{
+            label: 'Precio promedio ESPINACA (COP)',
+            data: espinaca.precios,
+            fill: true,
+            backgroundColor: 'rgba(129, 212, 250, 0.2)',
+            borderColor: '#0288d1',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: {
+              display: true,
+              text: 'Tendencia de precios - Espinaca'
+            }
+          }
+        }
+      });
+
+      // CILANTRO
+      const cilantro = data['CILANTRO'];
+      const ctxCil = document.getElementById('graficoCilantro').getContext('2d');
+      new Chart(ctxCil, {
+        type: 'bar',
+        data: {
+          labels: cilantro.semanas,
+          datasets: [{
+            label: 'Precio promedio CILANTRO (COP)',
+            data: cilantro.precios,
+            backgroundColor: ['#80cbc4', '#4db6ac', '#26a69a', '#009688']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Comparativa de precios - Cilantro'
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
